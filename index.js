@@ -43,6 +43,7 @@ async function run() {
             res.send(tools);
         })
 
+        // Getting single tool data
         app.get('/tools/:_id', async (req, res) => {
             const _id = req.params._id
             const query = { _id: ObjectId(_id) }
@@ -50,6 +51,22 @@ async function run() {
             res.send(tool)
         })
 
+        // Updating tool quantity after purchase
+        app.put('/tools/:_id', verifyJWT, async (req, res) => {
+            const _id = req.params._id
+            const filter = { _id: ObjectId(_id) }
+            const newQuantity = req.body.quantity
+            const options = { upsert: true }
+            const updatedDoc = {
+                $set: {
+                    quantity: parseInt(newQuantity)
+                }
+            }
+            const result = await toolsCollection.updateOne(filter, updatedDoc, options)
+            res.send(result)
+        })
+
+        // Storing user data in database
         app.put('/user/:email', async (req, res) => {
             const email = req.params.email;
             const user = req.body;
