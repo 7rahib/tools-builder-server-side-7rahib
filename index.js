@@ -34,6 +34,8 @@ async function run() {
         await client.connect()
         const toolsCollection = client.db('toolsBuilder').collection('tools');
         const userCollection = client.db('toolsBuilder').collection('user');
+        const ordersCollection = client.db('toolsBuilder').collection('orders');
+
 
         //Getting all tools data
         app.get('/tools', async (req, res) => {
@@ -85,6 +87,27 @@ async function run() {
             const query = {}
             const result = await userCollection.find(query).toArray()
             res.send(result)
+        })
+
+        // Adding new order
+        app.post('/order', async (req, res) => {
+            const order = req.body
+            const result = await ordersCollection.insertOne(order)
+            res.send(result)
+        })
+
+        // Getting all orders of an user
+        app.get('/order', verifyJWT, async (req, res) => {
+            const email = req.query.email;
+            const authEmail = req.decoded.email;
+            if (email === authEmail) {
+                const query = { email: email };
+                const orders = await ordersCollection.find(query).toArray();
+                return res.send(orders);
+            }
+            else {
+                return res.status(403).send({ message: 'forbidden access' });
+            }
         })
     }
     finally {
