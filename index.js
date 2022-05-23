@@ -57,11 +57,12 @@ async function run() {
         app.put('/tools/:_id', verifyJWT, async (req, res) => {
             const _id = req.params._id
             const filter = { _id: ObjectId(_id) }
-            const newQuantity = req.body.quantity
+            const newQuantity = req.body.newQuantity
+            console.log(newQuantity)
             const options = { upsert: true }
             const updatedDoc = {
                 $set: {
-                    quantity: parseInt(newQuantity)
+                    quantity: newQuantity
                 }
             }
             const result = await toolsCollection.updateOne(filter, updatedDoc, options)
