@@ -53,6 +53,13 @@ async function run() {
             res.send(tool)
         })
 
+        // Add new tool
+        app.post('/tools', async (req, res) => {
+            const newTool = req.body
+            const result = await toolsCollection.insertOne(newTool)
+            res.send(result)
+        })
+
         // Updating tool quantity after purchase
         app.put('/tools/:_id', verifyJWT, async (req, res) => {
             const _id = req.params._id
