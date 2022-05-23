@@ -76,6 +76,14 @@ async function run() {
             res.send(result)
         })
 
+        // Deleting Tools
+        app.delete('/tools/:_id', verifyJWT, async (req, res) => {
+            const _id = req.params._id;
+            const filter = { _id: ObjectId(_id) };
+            const result = await toolsCollection.deleteOne(filter);
+            res.send(result);
+        })
+
         // Storing user data in database
         app.put('/user/:email', async (req, res) => {
             const email = req.params.email;
@@ -97,6 +105,14 @@ async function run() {
             res.send(result)
         })
 
+        // Deleting Users
+        app.delete('/user/:_id', verifyJWT, async (req, res) => {
+            const _id = req.params._id;
+            const filter = { _id: ObjectId(_id) };
+            const result = await userCollection.deleteOne(filter);
+            res.send(result);
+        })
+
         // Adding new order
         app.post('/order', async (req, res) => {
             const order = req.body
@@ -108,6 +124,14 @@ async function run() {
         app.get('/order', async (req, res) => {
             const result = await ordersCollection.find().toArray()
             res.send(result)
+        })
+
+        // Deleting Orders
+        app.delete('/order/:_id', verifyJWT, async (req, res) => {
+            const _id = req.params._id;
+            const filter = { _id: ObjectId(_id) };
+            const result = await ordersCollection.deleteOne(filter);
+            res.send(result);
         })
 
         // Getting all orders of an user
@@ -122,6 +146,7 @@ async function run() {
             else {
                 return res.status(403).send({ message: 'forbidden access' });
             }
+
         })
     }
     finally {
