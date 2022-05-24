@@ -35,6 +35,7 @@ async function run() {
         const toolsCollection = client.db('toolsBuilder').collection('tools');
         const userCollection = client.db('toolsBuilder').collection('user');
         const ordersCollection = client.db('toolsBuilder').collection('orders');
+        const reviewsCollection = client.db('toolsBuilder').collection('reviews');
 
 
         //Getting all tools data
@@ -159,6 +160,21 @@ async function run() {
             const query = { email: email };
             const orders = await ordersCollection.find(query).toArray();
             return res.send(orders);
+        })
+
+        // Post user review
+        app.post('/reviews', verifyJWT, async (req, res) => {
+            const review = req.body;
+            const result = await reviewsCollection.insertOne(review);
+            res.send(result);
+        })
+
+        // Reviews of an user
+        app.get('/reviews/:email', verifyJWT, async (req, res) => {
+            const email = req.params.email;
+            const query = { email: email };
+            const results = await reviewsCollection.find(query).toArray();
+            res.send(results);
         })
     }
     finally {
