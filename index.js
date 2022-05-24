@@ -98,7 +98,7 @@ async function run() {
             res.send({ result, token });
         })
 
-        // Updating user data
+        // Updating individual user data
         app.put('/user/:email', async (req, res) => {
             const email = req.params.email;
             const updateProfile = req.body;
