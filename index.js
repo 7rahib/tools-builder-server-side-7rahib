@@ -65,7 +65,6 @@ async function run() {
             const _id = req.params._id
             const filter = { _id: ObjectId(_id) }
             const newQuantity = req.body.newQuantity
-            console.log(newQuantity)
             const options = { upsert: true }
             const updatedDoc = {
                 $set: {
@@ -114,7 +113,6 @@ async function run() {
             const email = req.params.email;
             const query = { email: email };
             const user = await userCollection.findOne(query);
-            console.log(user)
             const isAdmin = user?.role === 'admin';
             res.send({ admin: isAdmin })
         })
