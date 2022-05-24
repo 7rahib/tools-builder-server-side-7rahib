@@ -98,6 +98,27 @@ async function run() {
             res.send({ result, token });
         })
 
+        // Updating user data
+        app.put('/user/:email', async (req, res) => {
+            const email = req.params.email;
+            const updateProfile = req.body;
+            const filter = { email: email };
+            const options = { upsert: true };
+            const updatedDoc = {
+                $set: updateProfile,
+            };
+            const result = await userCollection.updateOne(filter, updatedDoc, options);
+            res.send(result);
+        })
+
+        // Get Individual user data
+        app.get('/user/:email', async (req, res) => {
+            const email = req.params.email;
+            const filter = { email: email };
+            const result = await userCollection.findOne(filter);
+            res.send(result);
+        })
+
         // Assign Admin role
         app.put('/user/admin/:email', verifyJWT, async (req, res) => {
             const email = req.params.email;
