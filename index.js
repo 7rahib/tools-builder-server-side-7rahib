@@ -98,6 +98,27 @@ async function run() {
             res.send({ result, token });
         })
 
+        // Assign Admin role
+        app.put('/user/admin/:email', verifyJWT, async (req, res) => {
+            const email = req.params.email;
+            const filter = { email: email };
+            const updateDoc = {
+                $set: { role: 'admin' },
+            };
+            const result = await userCollection.updateOne(filter, updateDoc);
+            res.send(result);
+        })
+
+        // Checking which user has admin role
+        app.get('/user/admin/:email', async (req, res) => {
+            const email = req.params.email;
+            const query = { email: email };
+            const user = await userCollection.findOne(query);
+            console.log(user)
+            const isAdmin = user?.role === 'admin';
+            res.send({ admin: isAdmin })
+        })
+
         // Get all user info
         app.get('/user', verifyJWT, async (req, res) => {
             const query = {}
@@ -114,14 +135,14 @@ async function run() {
         })
 
         // Adding new order
-        app.post('/order', async (req, res) => {
+        app.post('/order', verifyJWT, async (req, res) => {
             const order = req.body
             const result = await ordersCollection.insertOne(order)
             res.send(result)
         })
 
         // Getting all order
-        app.get('/order', async (req, res) => {
+        app.get('/order', verifyJWT, async (req, res) => {
             const result = await ordersCollection.find().toArray()
             res.send(result)
         })
@@ -135,18 +156,11 @@ async function run() {
         })
 
         // Getting all orders of an user
-        app.get('/order', verifyJWT, async (req, res) => {
-            const email = req.query.email;
-            const authEmail = req.decoded.email;
-            if (email === authEmail) {
-                const query = { email: email };
-                const orders = await ordersCollection.find(query).toArray();
-                return res.send(orders);
-            }
-            else {
-                return res.status(403).send({ message: 'forbidden access' });
-            }
-
+        app.get('/order/:email', verifyJWT, async (req, res) => {
+            const email = req.params.email;
+            const query = { email: email };
+            const orders = await ordersCollection.find(query).toArray();
+            return res.send(orders);
         })
     }
     finally {
