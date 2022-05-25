@@ -190,11 +190,9 @@ async function run() {
             res.send(result);
         })
 
-        // Reviews of an user
-        app.get('/reviews/:email', verifyJWT, async (req, res) => {
-            const email = req.params.email;
-            const query = { email: email };
-            const results = await reviewsCollection.find(query).toArray();
+        // Load Reviews
+        app.get('/reviews', async (req, res) => {
+            const results = await reviewsCollection.find().toArray();
             res.send(results);
         })
     }
