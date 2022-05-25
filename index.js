@@ -219,6 +219,16 @@ async function run() {
             res.send({ updatedBooking, result });
         })
 
+        // Assign Shipped status
+        app.put('/order/shipped/:id', verifyJWT, async (req, res) => {
+            const id = req.params.id;
+            const filter = { _id: ObjectId(id) };
+            const updateDoc = {
+                $set: { shipped: 'true' },
+            };
+            const result = await ordersCollection.updateOne(filter, updateDoc);
+            res.send(result);
+        })
 
         // Post user review
         app.post('/reviews', verifyJWT, async (req, res) => {
