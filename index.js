@@ -4,6 +4,7 @@ const app = express();
 const cors = require('cors');
 require('dotenv').config();
 const jwt = require('jsonwebtoken');
+const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 
 
 const port = process.env.PORT || 5000;
@@ -36,7 +37,18 @@ async function run() {
         const userCollection = client.db('toolsBuilder').collection('user');
         const ordersCollection = client.db('toolsBuilder').collection('orders');
         const reviewsCollection = client.db('toolsBuilder').collection('reviews');
+        const paymentCollection = client.db('toolsBuilder').collection('payments');
 
+        app.post('/create-payment-intent', verifyJWT, async (req, res) => {
+            const { price } = req.body;
+            const amount = price * 100;
+            const paymentIntent = await stripe.paymentIntents.create({
+                amount: amount,
+                currency: 'usd',
+                payment_method_types: ['card']
+            });
+            res.send({ clientSecret: paymentIntent.client_secret })
+        });
 
         //Getting all tools data
         app.get('/tools', async (req, res) => {
@@ -189,6 +201,24 @@ async function run() {
             const orders = await ordersCollection.find(query).toArray();
             return res.send(orders);
         })
+
+        // Set information after payment
+        app.patch('/order/:id', verifyJWT, async (req, res) => {
+            const id = req.params.id;
+            const payment = req.body;
+            const filter = { _id: ObjectId(id) };
+            const updatedDoc = {
+                $set: {
+                    paid: true,
+                    transactionId: payment.transactionId
+                }
+            }
+
+            const result = await paymentCollection.insertOne(payment);
+            const updatedBooking = await ordersCollection.updateOne(filter, updatedDoc);
+            res.send({ updatedBooking, result });
+        })
+
 
         // Post user review
         app.post('/reviews', verifyJWT, async (req, res) => {
