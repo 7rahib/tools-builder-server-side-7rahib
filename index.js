@@ -178,7 +178,6 @@ async function run() {
         app.get('/orders/:_id', async (req, res) => {
             const _id = req.params._id
             const query = { _id: ObjectId(_id) }
-            console.log(query)
             const orderInfo = await ordersCollection.findOne(query)
             res.send(orderInfo)
         })
@@ -248,7 +247,6 @@ async function run() {
             const results = await reviewsCollection.find().toArray();
             res.send(results);
         })
-        console.log('db')
     }
     finally {
 
