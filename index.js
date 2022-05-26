@@ -1,9 +1,10 @@
-const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
+const { MongoClient, ServerApiVersion } = require('mongodb');
 const express = require('express');
 const app = express();
 const cors = require('cors');
 require('dotenv').config();
 const jwt = require('jsonwebtoken');
+const ObjectId = require('mongodb').ObjectId;
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 
 
@@ -166,6 +167,22 @@ async function run() {
             res.send(result);
         })
 
+        // Getting all orders of an user
+        app.get('/order/:email', async (req, res) => {
+            const email = req.params.email
+            const query = { email: email }
+            const yourOrder = await ordersCollection.find(query).toArray()
+            res.send(yourOrder)
+        })
+
+        app.get('/orders/:_id', async (req, res) => {
+            const _id = req.params._id
+            const query = { _id: ObjectId(_id) }
+            console.log(query)
+            const orderInfo = await ordersCollection.findOne(query)
+            res.send(orderInfo)
+        })
+
         // Adding new order
         app.post('/order', verifyJWT, async (req, res) => {
             const order = req.body
@@ -174,17 +191,12 @@ async function run() {
         })
 
         // Getting all order
-        app.get('/order', verifyJWT, async (req, res) => {
+        app.get('/order', async (req, res) => {
             const result = await ordersCollection.find().toArray()
             res.send(result)
         })
 
-        app.get('/order/:id', verifyJWT, async (req, res) => {
-            const id = req.params.id
-            const query = { _id: ObjectId(id) }
-            const orderInfo = await ordersCollection.findOne(query)
-            res.send(orderInfo)
-        })
+
 
         // Deleting Orders
         app.delete('/order/:_id', verifyJWT, async (req, res) => {
@@ -194,13 +206,7 @@ async function run() {
             res.send(result);
         })
 
-        // Getting all orders of an user
-        app.get('/order/:email', verifyJWT, async (req, res) => {
-            const email = req.params.email;
-            const query = { email: email };
-            const orders = await ordersCollection.find(query).toArray();
-            return res.send(orders);
-        })
+
 
         // Set information after payment
         app.patch('/order/:id', verifyJWT, async (req, res) => {
@@ -242,6 +248,7 @@ async function run() {
             const results = await reviewsCollection.find().toArray();
             res.send(results);
         })
+        console.log('db')
     }
     finally {
 
