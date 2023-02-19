@@ -260,5 +260,5 @@ app.get('/', (req, res) => {
 })
 
 app.listen(Port, () => {
-    console.log('Listening to ', port)
+    console.log('Listening to ', Port)
 })
